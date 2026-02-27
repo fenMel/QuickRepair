@@ -32,10 +32,19 @@ const defaultUser: User = {
   
   // UI Mapped
   name: "Test Utilisateur",
-  role_name: "Technicien",
+  role_name: "Administrateur",
   location: "Paris",
   image: "https://ui-avatars.com/api/?name=Quick+Repair&background=random",
   bio: "Employé QuickRepair",
+};
+
+const getRoleName = (roleId: number) => {
+  switch (roleId) {
+    case 1: return "Administrateur";
+    case 2: return "Responsable";
+    case 3: return "Technicien";
+    default: return "Employé";
+  }
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -44,7 +53,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Initialize from localStorage if available
   const [user, setUser] = useState<User>(() => {
     const savedUser = localStorage.getItem("user_profile");
-    return savedUser ? JSON.parse(savedUser) : defaultUser;
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      // Ensure role_name is consistent with id_role, fixing any stale data
+      return {
+        ...parsedUser,
+        role_name: getRoleName(parsedUser.id_role)
+      };
+    }
+    return defaultUser;
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -67,8 +84,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               ...prev,
               ...employe,
               name: `${employe.prenom} ${employe.nom}`,
-              // TODO: Fetch real role/boutique names if tables exist
-              role_name: employe.id_role === 1 ? "Admin" : employe.id_role === 2 ? "Responsable" : employe.id_role === 3 ? "Technicien" : "Employé", 
+              role_name: getRoleName(employe.id_role), 
               location: `Boutique ${employe.id_boutique}`,
               // Use photo_url from DB if exists, otherwise keep existing (local) image
               image: employe.photo_url || prev.image 
