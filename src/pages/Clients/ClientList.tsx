@@ -2,15 +2,22 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { Search, Plus, Phone, Mail, Eye, Edit, Trash2 } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
+import { ConfirmModal } from "../../components/ui/modal/ConfirmModal";
+import { useToast } from "../../context/ToastContext";
 import { getClients, deleteClient, Client } from "../../services/supabaseService";
 
 import { useUser } from "../../context/UserContext";
 
 export default function ClientList() {
   const { user } = useUser();
+  const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     loadClients();
@@ -28,13 +35,25 @@ export default function ClientList() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
+  const openDeleteModal = (id: number) => {
+    setClientToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setClientToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (clientToDelete) {
       try {
-        await deleteClient(id);
+        await deleteClient(clientToDelete);
+        showToast("Client supprimé avec succès", "success");
         loadClients(); // Recharger la liste
       } catch (error) {
         console.error("Erreur lors de la suppression:", error);
+        showToast("Erreur lors de la suppression du client", "error");
       }
     }
   };
@@ -136,7 +155,7 @@ export default function ClientList() {
                           <Link to={`/clients/edit/${client.id_client}`} className="hover:text-primary">
                             <Edit size={18} />
                           </Link>
-                          <button onClick={() => client.id_client && handleDelete(client.id_client)} className="hover:text-red-500">
+                          <button onClick={() => client.id_client && openDeleteModal(client.id_client)} className="hover:text-red-500">
                             <Trash2 size={18} />
                           </button>
                         </div>
@@ -156,6 +175,17 @@ export default function ClientList() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Supprimer le client"
+        message="Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
+      />
     </>
   );
 }

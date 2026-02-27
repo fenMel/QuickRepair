@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router";
 import { ChevronLeft, Save } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
+import { useToast } from "../../context/ToastContext";
 import { createClient, updateClient, getClientById } from "../../services/supabaseService";
 
 export default function ClientForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const isEditing = !!id;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -67,14 +69,16 @@ export default function ClientForm() {
 
       if (isEditing && id) {
         await updateClient(id, clientData);
+        showToast("Client mis à jour avec succès", "success");
       } else {
         await createClient(clientData);
+        showToast("Client créé avec succès", "success");
       }
       
       navigate("/clients");
     } catch (error) {
       console.error("Erreur sauvegarde client:", error);
-      alert("Une erreur est survenue lors de l'enregistrement.");
+      showToast("Erreur lors de l'enregistrement du client", "error");
     } finally {
       setIsLoading(false);
     }
