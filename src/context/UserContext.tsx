@@ -18,7 +18,7 @@ interface UserContextType {
   isAuthenticated: boolean;
   updateUserImage: (image: string) => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const defaultUser: User = {
@@ -257,14 +257,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem("user_profile");
     setUser(defaultUser);
-    // You might also want to sign out from Supabase if you were using their auth fully
-    // await supabase.auth.signOut();
+    await supabase.auth.signOut();
   };
 
-  const isAuthenticated = !!user.id_employe;
+  const isAuthenticated = !isLoading && !!user.id_employe;
 
   return (
     <UserContext.Provider value={{ user, isLoading, isAuthenticated, updateUserImage, updateUser, logout }}>
