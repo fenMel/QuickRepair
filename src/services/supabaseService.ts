@@ -224,9 +224,14 @@ export const getClientById = async (id: number | string) => {
 };
 
 export const createClient = async (client: Omit<Client, 'id_client' | 'date_creation'>) => {
+  const clientWithDate = {
+    ...client,
+    date_creation: new Date().toISOString()
+  };
+
   const { data, error } = await supabase
     .from('client')
-    .insert([client])
+    .insert([clientWithDate])
     .select()
     .single();
   
