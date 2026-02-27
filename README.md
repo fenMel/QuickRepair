@@ -44,9 +44,9 @@ Le dépôt inclut un workflow GitHub Actions qui déploie automatiquement l'appl
    - Aller dans **Settings → Pages**
    - Choisir **Source : GitHub Actions**
 
-2. **Ajouter les secrets** dans **Settings → Secrets and variables → Actions → New repository secret** :
+2. **Ajouter les variables** dans **Settings → Secrets and variables → Actions → onglet Variables → New repository variable** :
 
-   | Nom du secret            | Valeur                          |
+   | Nom de la variable       | Valeur                          |
    |--------------------------|---------------------------------|
    | `VITE_SUPABASE_URL`      | L'URL de votre projet Supabase  |
    | `VITE_SUPABASE_ANON_KEY` | La clé anon de votre projet     |
