@@ -69,6 +69,8 @@ NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxxxxxxxxxx.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 L'application sera accessible sur [http://localhost:5173](http://localhost:5173).
+Comptes de test — jojo1@gmail.com (Administrateur), tutu2@gmail.com (Technicien),
+titi3@gmail.com (Responsable boutique) — mot de passe commun : Azerty123
 
 ## 🌐 Déploiement
 
