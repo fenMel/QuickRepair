@@ -173,7 +173,7 @@ const EmployeeManagement: React.FC = () => {
                         className={`text-sm border-gray-300 rounded-md shadow-sm focus:border-brand-500 focus:ring focus:ring-brand-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         <option value={1}>Admin (1)</option>
-                        <option value={2}>Manager (2)</option>
+                        <option value={2}>Responsable (2)</option>
                         <option value={3}>Technicien (3)</option>
                         <option value={4}>Vendeur (4)</option>
                       </select>
