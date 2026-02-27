@@ -27,6 +27,46 @@ npm install
 # 4. Lancer le serveur de développement
 npm run dev
 ```
+### 1) Créer un projet Supabase
+
+1. Aller sur https://supabase.com/ et se connecter
+
+2. Cliquer sur **New project**
+
+3. Choisir une **organisation**
+
+4. Donner un **nom de projet**
+
+5. Définir un **mot de passe** pour la base de données
+
+6. Choisir une **région**
+
+7. Cliquer sur **Create new project**
+
+### 2) Récupérer les clés Supabase (URL + ANON KEY)
+
+Dans Supabase :
+
+- Aller dans **Project Settings** → **API**
+
+- Copier :
+
+  - **Project URL**
+
+  - **anon public key**
+
+### 3) Installer la librairie Supabase dans le projet
+
+npm install @supabase/supabase-js
+
+---
+Configurer les variables d’environnement (.env)
+
+Créer un fichier .env.local (ou .env selon le projet) et ajouter :
+
+NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxxxxxxxxxx.supabase.co"
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 L'application sera accessible sur [http://localhost:5173](http://localhost:5173).
 
