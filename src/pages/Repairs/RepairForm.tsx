@@ -11,8 +11,10 @@ import {
   createNotification,
   getRepairTypes,
   getBoutiques,
+  getEmployees,
   Client,
-  Boutique 
+  Boutique,
+  Employe
 } from "../../services/supabaseService";
 
 export default function RepairForm() {
@@ -25,6 +27,7 @@ export default function RepairForm() {
   
   const [clients, setClients] = useState<Client[]>([]);
   const [shops, setShops] = useState<Boutique[]>([]);
+  const [technicians, setTechnicians] = useState<Employe[]>([]);
   const [repairTypes, setRepairTypes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [initialStatus, setInitialStatus] = useState("En cours");
@@ -47,6 +50,7 @@ export default function RepairForm() {
     loadClients();
     loadRepairTypes();
     loadShops();
+    loadTechnicians();
     if (isEditing && id) {
       loadRepair(id);
     } else if (clientIdParam) {
@@ -60,6 +64,19 @@ export default function RepairForm() {
       setShops(data);
     } catch (error) {
       console.error("Erreur chargement boutiques:", error);
+    }
+  };
+
+  const loadTechnicians = async () => {
+    try {
+      const data = await getEmployees();
+      // Filter active employees who are technicians (role 3) or managers (role 2) or admins (role 1)
+      // Usually technicians are role 3, but let's allow all for now to be safe or filter if needed
+      // User asked for "all technicians", assuming role 3 + maybe 2
+      const techs = data.filter(e => e.actif && (e.id_role === 2 || e.id_role === 3));
+      setTechnicians(techs);
+    } catch (error) {
+      console.error("Erreur chargement techniciens:", error);
     }
   };
 
@@ -350,8 +367,11 @@ export default function RepairForm() {
                         className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                       >
                         <option value="">Sélectionner un technicien</option>
-                        <option value="Amina Kouyaté">Amina Kouyaté</option>
-                        <option value="Jean Lemoine">Jean Lemoine</option>
+                        {technicians.map((tech) => (
+                          <option key={tech.id_employe} value={`${tech.prenom} ${tech.nom}`}>
+                            {tech.prenom} {tech.nom}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
