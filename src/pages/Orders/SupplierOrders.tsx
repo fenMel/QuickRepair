@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../context/UserContext';
+import { useToast } from '../../context/ToastContext';
 import { getSupplierOrders, SupplierOrder, getFournisseurs, createSupplierOrder, Fournisseur } from '../../services/supabaseService';
 import PageMeta from '../../components/common/PageMeta';
 import { Truck, Search, Calendar, CheckCircle, Clock, AlertCircle, Plus, X } from 'lucide-react';
@@ -8,6 +9,7 @@ import { Modal } from '../../components/ui/modal';
 
 const SupplierOrders: React.FC = () => {
   const { user } = useUser();
+  const { showToast } = useToast();
   const [orders, setOrders] = useState<SupplierOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,9 +68,10 @@ const SupplierOrders: React.FC = () => {
       await loadOrders();
       setIsModalOpen(false);
       setSelectedFournisseur('');
+      showToast("Commande créée avec succès", "success");
     } catch (err) {
       console.error('Erreur création commande:', err);
-      setError("Erreur lors de la création de la commande.");
+      showToast("Erreur lors de la création de la commande", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -141,8 +144,8 @@ const SupplierOrders: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {/* Placeholder for "New Order" button - only for Manager/Admin */}
-            {(user.id_role === 1 || user.id_role === 2) && (
+            {/* Placeholder for "New Order" button - only for Manager/Admin/Technician */}
+            {(user.id_role === 1 || user.id_role === 2 || user.id_role === 3) && (
                  <button 
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors text-sm font-medium"

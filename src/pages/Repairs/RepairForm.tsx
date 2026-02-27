@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate, useSearchParams } from "react-router";
 import { ChevronLeft, Save } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
+import { useToast } from "../../context/ToastContext";
 import { 
   getClients, 
   createRepair, 
@@ -9,17 +10,21 @@ import {
   getRepairById,
   createNotification,
   getRepairTypes,
-  Client 
+  getBoutiques,
+  Client,
+  Boutique 
 } from "../../services/supabaseService";
 
 export default function RepairForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const clientIdParam = searchParams.get("clientId");
   const isEditing = !!id;
   
   const [clients, setClients] = useState<Client[]>([]);
+  const [shops, setShops] = useState<Boutique[]>([]);
   const [repairTypes, setRepairTypes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [initialStatus, setInitialStatus] = useState("En cours");
@@ -41,12 +46,22 @@ export default function RepairForm() {
   useEffect(() => {
     loadClients();
     loadRepairTypes();
+    loadShops();
     if (isEditing && id) {
       loadRepair(id);
     } else if (clientIdParam) {
       setFormData(prev => ({ ...prev, clientId: clientIdParam }));
     }
   }, [isEditing, id, clientIdParam]);
+
+  const loadShops = async () => {
+    try {
+      const data = await getBoutiques();
+      setShops(data);
+    } catch (error) {
+      console.error("Erreur chargement boutiques:", error);
+    }
+  };
 
   const loadClients = async () => {
     try {
@@ -134,6 +149,7 @@ export default function RepairForm() {
 
       if (isEditing && id) {
         await updateRepair(id, repairData);
+        showToast("Réparation mise à jour avec succès", "success");
         
         // Notify if status changed
         if (initialStatus !== formData.status) {
@@ -151,12 +167,13 @@ export default function RepairForm() {
         }
       } else {
         await createRepair(repairData);
+        showToast("Réparation créée avec succès", "success");
       }
       
       navigate("/reparations");
     } catch (error) {
       console.error("Erreur sauvegarde réparation:", error);
-      alert("Une erreur est survenue lors de l'enregistrement.");
+      showToast("Erreur lors de l'enregistrement de la réparation", "error");
     } finally {
       setIsLoading(false);
     }
@@ -347,10 +364,14 @@ export default function RepairForm() {
                         value={formData.shop}
                         onChange={handleChange}
                         className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        required
                       >
-                        <option value="Paris Centre">Paris Centre</option>
-                        <option value="Lyon Part-Dieu">Lyon Part-Dieu</option>
-                        <option value="Marseille Vieux-Port">Marseille Vieux-Port</option>
+                        <option value="">Sélectionner une boutique</option>
+                        {shops.map((shop) => (
+                          <option key={shop.id_boutique} value={shop.nom}>
+                            {shop.nom}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>

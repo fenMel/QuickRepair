@@ -2,17 +2,24 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { Search, Plus, Filter, Eye, Edit, Trash2, Calendar, User, Smartphone, PenTool } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
+import { ConfirmModal } from "../../components/ui/modal/ConfirmModal";
+import { useToast } from "../../context/ToastContext";
 import { getRepairs, deleteRepair, Repair } from "../../services/supabaseService";
 import { useUser } from "../../context/UserContext";
 
 export default function RepairList() {
   const { user } = useUser();
+  const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("Tous");
   const [filterPeriod, setFilterPeriod] = useState("Tous");
   const [filterShop, setFilterShop] = useState("Tous");
   const [repairs, setRepairs] = useState<Repair[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [repairToDelete, setRepairToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadRepairs();
@@ -35,14 +42,25 @@ export default function RepairList() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette réparation ?")) {
+  const openDeleteModal = (id: string) => {
+    setRepairToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setRepairToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (repairToDelete) {
       try {
-        await deleteRepair(id);
+        await deleteRepair(repairToDelete);
+        showToast("Réparation supprimée avec succès", "success");
         loadRepairs();
       } catch (error) {
         console.error("Erreur suppression réparation:", error);
-        alert("Erreur lors de la suppression");
+        showToast("Erreur lors de la suppression de la réparation", "error");
       }
     }
   };
@@ -254,12 +272,14 @@ export default function RepairList() {
                           <Link to={`/reparations/edit/${repair.id}`} className="hover:text-primary">
                             <Edit size={18} />
                           </Link>
-                          <button 
-                            onClick={() => repair.id && handleDelete(repair.id.toString())}
-                            className="hover:text-red-500"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          {user.id_role !== 3 && (
+                            <button 
+                              onClick={() => repair.id && openDeleteModal(repair.id.toString())}
+                              className="hover:text-red-500"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -270,6 +290,17 @@ export default function RepairList() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Supprimer la réparation"
+        message="Êtes-vous sûr de vouloir supprimer cette réparation ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
+      />
     </>
   );
 }

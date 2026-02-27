@@ -95,7 +95,6 @@ const AppSidebar: React.FC = () => {
       if (
         item.name === "Clients" || 
         item.name === "Statistiques" || 
-        item.name === "Commandes" ||
         item.name === "Employés"
       ) {
         return false;

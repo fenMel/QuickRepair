@@ -31,10 +31,11 @@ import Statistics from "./pages/Stats/Statistics";
 import StockList from "./pages/Stock/StockList";
 import SupplierOrders from "./pages/Orders/SupplierOrders";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { ToastProvider } from "./context/ToastContext";
 
 export default function App() {
   return (
-    <>
+    <ToastProvider>
       <Router basename={import.meta.env.BASE_URL}>
         <ScrollToTop />
         <Routes>
@@ -105,6 +106,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </ToastProvider>
   );
 }
